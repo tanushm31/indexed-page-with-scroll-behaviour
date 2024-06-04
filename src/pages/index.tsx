@@ -172,6 +172,7 @@ const decidingCriteria: IColumns[] = [
 type TableRowProps = {
 	criteria: ICriteria;
 	decidingCriteria: IColumns[];
+	initialValues: InitialCriteriaValues;
 };
 
 type InitialCriteriaValues = {
@@ -180,15 +181,44 @@ type InitialCriteriaValues = {
 	selectedDecidingCriteriaID: Record<string, string>;
 };
 
-const TableRowCrit = ({ criteria, decidingCriteria }: TableRowProps) => {
+// Simulated initial values from an API
+const initialCriteriaValues: InitialCriteriaValues[] = [
+	{
+		id: "1",
+		title: "criteria-1",
+		selectedDecidingCriteriaID: {
+			aging: "0-30 Days",
+			dollarRange: "1k-2.5k USD",
+		},
+	},
+	{
+		id: "2",
+		title: "criteria-2",
+		selectedDecidingCriteriaID: {
+			aging: "60-90 Days",
+			dollarRange: "2.5k-5k USD",
+		},
+	},
+];
+
+const TableRowCrit = ({
+	criteria,
+	decidingCriteria,
+	initialValues,
+}: TableRowProps) => {
 	const [selectedOptions, setSelectedOptions] = useState<
 		Record<string, string>
-	>(
-		decidingCriteria.reduce((acc, crit) => {
-			acc[crit.id] = crit.options[0]; // Default to first option
-			return acc;
-		}, {} as Record<string, string>)
-	);
+	>(initialValues.selectedDecidingCriteriaID);
+	const [isUpdated, setIsUpdated] = useState<boolean>(false);
+
+	useEffect(() => {
+		// Check if any value has been updated from the initial values
+		const updated = Object.keys(selectedOptions).some(
+			(key) =>
+				selectedOptions[key] !== initialValues.selectedDecidingCriteriaID[key]
+		);
+		setIsUpdated(updated);
+	}, [selectedOptions, initialValues.selectedDecidingCriteriaID]);
 
 	const handleSelectChange = (columnId: string, value: string) => {
 		setSelectedOptions((prevState) => ({
@@ -197,22 +227,10 @@ const TableRowCrit = ({ criteria, decidingCriteria }: TableRowProps) => {
 		}));
 	};
 
-	const handlePrintValues = () => {
-		console.log(selectedOptions);
-	};
-
 	return (
-		<tr>
+		<tr className={isUpdated ? "bg-yellow-100" : ""}>
 			<td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
-				{criteria.title}{" "}
-				<button
-					onClick={() => {
-						handlePrintValues();
-					}}
-					className="px-3 bg-gray-400"
-				>
-					Print Values
-				</button>
+				{criteria.title}
 			</td>
 			{decidingCriteria.map((crit) => (
 				<td key={crit.id} className="px-6 py-4 whitespace-nowrap">
@@ -234,6 +252,15 @@ const TableRowCrit = ({ criteria, decidingCriteria }: TableRowProps) => {
 };
 
 const CriteriaMappingTable = () => {
+	const [initialValues, setInitialValues] = useState<InitialCriteriaValues[]>(
+		[]
+	);
+
+	useEffect(() => {
+		// Fetch initial values from API and set the state
+		setInitialValues(initialCriteriaValues); // Replace with actual API call
+	}, []);
+
 	return (
 		<div className="container p-4 mx-auto">
 			<table className="min-w-full divide-y divide-gray-200">
@@ -253,13 +280,21 @@ const CriteriaMappingTable = () => {
 					</tr>
 				</thead>
 				<tbody className="bg-white divide-y divide-gray-200">
-					{criteriaArray.map((criteria) => (
-						<TableRowCrit
-							key={criteria.id}
-							criteria={criteria}
-							decidingCriteria={decidingCriteria}
-						/>
-					))}
+					{criteriaArray.map((criteria) => {
+						const initialValuesForCriteria = initialValues.find(
+							(val) => val.id === criteria.id
+						);
+						return (
+							initialValuesForCriteria && (
+								<TableRowCrit
+									key={criteria.id}
+									criteria={criteria}
+									decidingCriteria={decidingCriteria}
+									initialValues={initialValuesForCriteria}
+								/>
+							)
+						);
+					})}
 				</tbody>
 			</table>
 		</div>
