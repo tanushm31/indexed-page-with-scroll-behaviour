@@ -149,7 +149,7 @@ type IColumns = {
 	options: string[];
 };
 
-type ICriteriaMapping = {
+type I = {
 	criterias: ICriteria[];
 	columns: IColumns[];
 };
@@ -228,7 +228,7 @@ const TableRowCrit = ({
 	};
 
 	return (
-		<tr className={isUpdated ? "bg-yellow-100" : ""}>
+		<tr className={isUpdated ? "bg-yellow-100 text-xs" : " text-xs"}>
 			<td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
 				{criteria.title}
 			</td>
@@ -237,7 +237,7 @@ const TableRowCrit = ({
 					<select
 						value={selectedOptions[crit.id]}
 						onChange={(e) => handleSelectChange(crit.id, e.target.value)}
-						className="block w-full mt-1 form-select"
+						className="block w-full mt-1 text-xs border-2 rounded form-select"
 					>
 						{crit.options.map((option) => (
 							<option key={option} value={option}>
