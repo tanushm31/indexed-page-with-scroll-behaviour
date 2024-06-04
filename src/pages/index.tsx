@@ -262,17 +262,17 @@ const CriteriaMappingTable = () => {
 	}, []);
 
 	return (
-		<div className="container p-4 mx-auto">
+		<div className="flex w-full p-0 bg-red-100">
 			<table className="min-w-full divide-y divide-gray-200">
 				<thead className="bg-gray-50">
 					<tr>
-						<th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+						<th className="px-6 py-2 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
 							Criteria
 						</th>
 						{decidingCriteria.map((crit) => (
 							<th
 								key={crit.id}
-								className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+								className="px-6 py-2 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
 							>
 								{crit.title}
 							</th>
@@ -321,10 +321,14 @@ const CriteriaMappingTable = () => {
 // };
 
 const CriteriaMapping = () => {
+	return <CriteriaMappingTable />;
+};
+
+const UserCriteriaMapping = () => {
 	return (
 		<div className="flex flex-col items-start justify-between space-y-3 overflow-x-auto ">
 			{/* Group Creation */}
-			<CriteriaMappingTable />
+			<></>
 		</div>
 	);
 };
@@ -339,11 +343,15 @@ export default function Home() {
 	//  Refs for the index-section headings
 	const indexSection1Ref = useRef(null);
 	const indexSection2Ref = useRef(null);
+	const indexSection3Ref = useRef(null);
+	const indexSection4Ref = useRef(null);
 
 	//  Refs for the sections
 	const sectionRefs = [
 		{ section: "column-selection", ref: indexSection1Ref },
 		{ section: "user-group-selection", ref: indexSection2Ref },
+		{ section: "criteria-mapping", ref: indexSection3Ref },
+		{ section: "user-criteria-mapping", ref: indexSection4Ref },
 	];
 	// const section1Ref = useRef(null);
 	// const section2Ref = useRef(null);
@@ -416,9 +424,16 @@ export default function Home() {
 					<SectionComponent
 						header="Criteria Mapping"
 						sectionID="criteria-mapping"
-						referenceVar={indexSection2Ref}
+						referenceVar={indexSection3Ref}
 					>
 						<CriteriaMapping />
+					</SectionComponent>
+					<SectionComponent
+						header="User Group Criteria Mapping"
+						sectionID="user-criteria-mapping"
+						referenceVar={indexSection4Ref}
+					>
+						<UserCriteriaMapping />
 					</SectionComponent>
 				</div>
 				<div
@@ -446,6 +461,26 @@ export default function Home() {
 							}`}
 						>
 							Section 2
+						</li>
+						<li
+							onMouseDown={() => {
+								scrollTo(indexSection3Ref.current);
+							}}
+							className={`hover:text-blue-700 hover:cursor-pointer ${
+								visibleSection === "user-group-selection" ? "font-bold" : ""
+							}`}
+						>
+							Section 3
+						</li>
+						<li
+							onMouseDown={() => {
+								scrollTo(indexSection4Ref.current);
+							}}
+							className={`hover:text-blue-700 hover:cursor-pointer ${
+								visibleSection === "user-group-selection" ? "font-bold" : ""
+							}`}
+						>
+							Section 4
 						</li>
 					</ul>
 				</div>
