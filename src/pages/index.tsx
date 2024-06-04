@@ -139,6 +139,161 @@ const UserGroupSelection = () => {
 	);
 };
 
+type ICriteria = {
+	id: string;
+	title: string;
+};
+type IColumns = {
+	id: string;
+	title: string;
+	options: string[];
+};
+
+type ICriteriaMapping = {
+	criterias: ICriteria[];
+	columns: IColumns[];
+};
+type SelectedOptionsState = Record<string, Record<string, string>>;
+// Sample data
+const criteriaArray: ICriteria[] = [
+	{ id: "1", title: "criteria-1" },
+	{ id: "2", title: "criteria-2" },
+];
+
+const decidingCriteria: IColumns[] = [
+	{ id: "aging", title: "Aging", options: ["0-30 Days", "60-90 Days"] },
+	{
+		id: "dollarRange",
+		title: "Dollar Range",
+		options: ["1k-2.5k USD", "2.5k-5k USD"],
+	},
+];
+
+type TableRowProps = {
+	criteria: ICriteria;
+	decidingCriteria: IColumns[];
+};
+
+type InitialCriteriaValues = {
+	id: string;
+	title: string;
+	selectedDecidingCriteriaID: Record<string, string>;
+};
+
+const TableRowCrit = ({ criteria, decidingCriteria }: TableRowProps) => {
+	const [selectedOptions, setSelectedOptions] = useState<
+		Record<string, string>
+	>(
+		decidingCriteria.reduce((acc, crit) => {
+			acc[crit.id] = crit.options[0]; // Default to first option
+			return acc;
+		}, {} as Record<string, string>)
+	);
+
+	const handleSelectChange = (columnId: string, value: string) => {
+		setSelectedOptions((prevState) => ({
+			...prevState,
+			[columnId]: value,
+		}));
+	};
+
+	const handlePrintValues = () => {
+		console.log(selectedOptions);
+	};
+
+	return (
+		<tr>
+			<td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
+				{criteria.title}{" "}
+				<button
+					onClick={() => {
+						handlePrintValues();
+					}}
+					className="px-3 bg-gray-400"
+				>
+					Print Values
+				</button>
+			</td>
+			{decidingCriteria.map((crit) => (
+				<td key={crit.id} className="px-6 py-4 whitespace-nowrap">
+					<select
+						value={selectedOptions[crit.id]}
+						onChange={(e) => handleSelectChange(crit.id, e.target.value)}
+						className="block w-full mt-1 form-select"
+					>
+						{crit.options.map((option) => (
+							<option key={option} value={option}>
+								{option}
+							</option>
+						))}
+					</select>
+				</td>
+			))}
+		</tr>
+	);
+};
+
+const CriteriaMappingTable = () => {
+	return (
+		<div className="container p-4 mx-auto">
+			<table className="min-w-full divide-y divide-gray-200">
+				<thead className="bg-gray-50">
+					<tr>
+						<th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+							Criteria
+						</th>
+						{decidingCriteria.map((crit) => (
+							<th
+								key={crit.id}
+								className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+							>
+								{crit.title}
+							</th>
+						))}
+					</tr>
+				</thead>
+				<tbody className="bg-white divide-y divide-gray-200">
+					{criteriaArray.map((criteria) => (
+						<TableRowCrit
+							key={criteria.id}
+							criteria={criteria}
+							decidingCriteria={decidingCriteria}
+						/>
+					))}
+				</tbody>
+			</table>
+		</div>
+	);
+};
+
+// const CriteriaRow = (props: { criteria: ICriteria; columns: IColumns[] }) => {
+// 	// Create a row for criteria with each column as a selectoptions in columns variable
+// 	const { criteria, columns } = props;
+// 	return (
+// 		<div className="flex items-center justify-start">
+// 			<div>{criteria.title}</div>
+// 			<div>
+// 				<select key={criteria.id} className="border-2 border-black">
+// 					{columns.map((column) => (
+// 						<option key={column.id} value={column.id}>
+// 							{column.title}
+// 						</option>
+// 					))}
+// 				</select>
+// 			</div>
+// 		</div>
+// 	);
+// };
+
+const CriteriaMapping = () => {
+	return (
+		<div className="flex flex-col items-start justify-between space-y-3 overflow-x-auto ">
+			{/* Group Creation */}
+			<CriteriaMappingTable />
+		</div>
+	);
+};
+
 export default function Home() {
 	const [visibleSection, setVisibleSection] = useState<string | undefined>(
 		undefined
@@ -207,7 +362,7 @@ export default function Home() {
 			<div className="flex justify-between w-full h-full p-2 ">
 				<div
 					id="content-container"
-					className="w-full h-full space-y-2 space-y-10 overflow-y-scroll "
+					className="w-full h-full space-y-10 overflow-y-scroll "
 				>
 					<SectionComponent
 						header="Column Selection"
@@ -222,6 +377,13 @@ export default function Home() {
 						referenceVar={indexSection2Ref}
 					>
 						<UserGroupSelection />
+					</SectionComponent>
+					<SectionComponent
+						header="Criteria Mapping"
+						sectionID="criteria-mapping"
+						referenceVar={indexSection2Ref}
+					>
+						<CriteriaMapping />
 					</SectionComponent>
 				</div>
 				<div
