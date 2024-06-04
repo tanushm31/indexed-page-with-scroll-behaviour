@@ -1,6 +1,8 @@
 import Image from "next/image";
 import { Inter } from "next/font/google";
 import { MutableRefObject, useEffect, useRef, useState } from "react";
+import Select from "react-select";
+import { ComboBoxResponsive } from "@/components/AnimatedMultiSelectComponent";
 
 const inter = Inter({ subsets: ["latin"] });
 
@@ -323,12 +325,220 @@ const CriteriaMappingTable = () => {
 const CriteriaMapping = () => {
 	return <CriteriaMappingTable />;
 };
+type IGroup = {
+	groupID: string;
+	groupName: string;
+};
+
+// type IInitialGroupCriteriaMapping = {
+// 	gr
+// }
+type IUserCritiaMappingRow = {
+	criteria: ICriteria;
+	groups: IGroup[];
+	initiallyMappedGroups: IGroup[];
+	// decidingCriteria: IColumns[];
+};
+
+const UserCriteriaMappingRow = ({
+	criteria,
+	groups,
+	initiallyMappedGroups,
+}: IUserCritiaMappingRow) => {
+	return (
+		<div className="grid items-center justify-start w-full grid-cols-5 gap-2 mt-2">
+			<div className="col-span-1 p-2 px-3 rounded">{criteria.title}</div>
+			<div className="flex items-center justify-center w-full col-span-4 bg-blue-500">
+				<ComboBoxResponsive
+					options={groups.map((group) => ({
+						option: group.groupID,
+						label: group.groupName,
+					}))}
+					initialValues={initiallyMappedGroups.map((group) => ({
+						option: group.groupID,
+						label: group.groupName,
+					}))}
+				/>
+			</div>
+		</div>
+	);
+};
+
+// type GroupSelectTableProps = {
+// 	criteriaArray: ICriteria[];
+// 	// decidingCriteria: IColumns[];
+// 	groups: { groupID: string; groupName: string }[];
+// 	initialCriteriaValues: InitialCriteriaValues[];
+// };
+
+// const GroupSelectTable: React.FC<GroupSelectTableProps> = ({
+// 	criteriaArray,
+// 	// decidingCriteria,
+// 	groups,
+// 	initialCriteriaValues,
+// }) => {
+// 	const [criteriaValues, setCriteriaValues] = useState<InitialCriteriaValues[]>(
+// 		initialCriteriaValues
+// 	);
+
+// 	const handleDecidingCriteriaChange = (
+// 		criteriaId: string,
+// 		columnId: string,
+// 		value: string
+// 	) => {
+// 		setCriteriaValues((prevValues) =>
+// 			prevValues.map((criteria) =>
+// 				criteria.id === criteriaId
+// 					? {
+// 							...criteria,
+// 							selectedDecidingCriteriaID: {
+// 								...criteria.selectedDecidingCriteriaID,
+// 								[columnId]: value,
+// 							},
+// 					  }
+// 					: criteria
+// 			)
+// 		);
+// 	};
+
+// 	const handleGroupChange = (criteriaId: string, selectedOptions: any) => {
+// 		setCriteriaValues((prevValues) =>
+// 			prevValues.map((criteria) =>
+// 				criteria.id === criteriaId
+// 					? {
+// 							...criteria,
+// 							selectedGroups: selectedOptions.map(
+// 								(option: any) => option.value
+// 							),
+// 					  }
+// 					: criteria
+// 			)
+// 		);
+// 	};
+
+// 	useEffect(() => {
+// 		console.log("Updated criteria values:", criteriaValues);
+// 	}, [criteriaValues]);
+
+// 	return (
+// 		<div className="container p-4 mx-auto">
+// 			<table className="min-w-full divide-y divide-gray-200">
+// 				<thead className="bg-gray-50">
+// 					<tr>
+// 						<th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+// 							Criteria
+// 						</th>
+// 						<th className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase">
+// 							Groups
+// 						</th>
+// 						{decidingCriteria.map((crit) => (
+// 							<th
+// 								key={crit.id}
+// 								className="px-6 py-3 text-xs font-medium tracking-wider text-left text-gray-500 uppercase"
+// 							>
+// 								{crit.title}
+// 							</th>
+// 						))}
+// 					</tr>
+// 				</thead>
+// 				<tbody className="bg-white divide-y divide-gray-200">
+// 					{criteriaArray.map((criteria) => {
+// 						const initialValues = initialCriteriaValues.find(
+// 							(val) => val.id === criteria.id
+// 						);
+// 						if (!initialValues) return null;
+
+// 						return (
+// 							<tr key={criteria.id}>
+// 								<td className="px-6 py-4 text-sm font-medium text-gray-900 whitespace-nowrap">
+// 									{criteria.title}
+// 								</td>
+// 								<td className="px-6 py-4 whitespace-nowrap">
+// 									<Select
+// 										isMulti
+// 										value={groups
+// 											.filter((group) => initialValues.includes(group.groupID))
+// 											.map((group) => ({
+// 												value: group.groupID,
+// 												label: group.groupName,
+// 											}))}
+// 										options={groups.map((group) => ({
+// 											value: group.groupID,
+// 											label: group.groupName,
+// 										}))}
+// 										onChange={(selectedOptions) =>
+// 											handleGroupChange(criteria.id, selectedOptions)
+// 										}
+// 									/>
+// 								</td>
+// 								{decidingCriteria.map((crit) => (
+// 									<td key={crit.id} className="px-6 py-4 whitespace-nowrap">
+// 										<select
+// 											value={initialValues.selectedDecidingCriteriaID[crit.id]}
+// 											onChange={(e) =>
+// 												handleDecidingCriteriaChange(
+// 													criteria.id,
+// 													crit.id,
+// 													e.target.value
+// 												)
+// 											}
+// 											className="block w-full mt-1 form-select"
+// 										>
+// 											{crit.options.map((option) => (
+// 												<option key={option} value={option}>
+// 													{option}
+// 												</option>
+// 											))}
+// 										</select>
+// 									</td>
+// 								))}
+// 							</tr>
+// 						);
+// 					})}
+// 				</tbody>
+// 			</table>
+// 		</div>
+// 	);
+// };
+
+const initialGroupsFromAPI: IGroup[] = [
+	{ groupID: "1", groupName: "Group 1" },
+	{ groupID: "2", groupName: "Group 2" },
+	{ groupID: "3", groupName: "Group 3" },
+	{ groupID: "4", groupName: "Group 4" },
+];
+const initialGroupMappingFromAPI: IUserCritiaMappingRow[] = [
+	{
+		criteria: { id: "1", title: "criteria-1" },
+		groups: initialGroupsFromAPI,
+		initiallyMappedGroups: [{ groupID: "1", groupName: "Group 1" }],
+	},
+	{
+		criteria: { id: "2", title: "criteria-2" },
+		groups: initialGroupsFromAPI,
+		initiallyMappedGroups: [
+			{ groupID: "2", groupName: "Group 2" },
+			{ groupID: "3", groupName: "Group 3" },
+		],
+	},
+];
 
 const UserCriteriaMapping = () => {
 	return (
-		<div className="flex flex-col items-start justify-between space-y-3 overflow-x-auto ">
+		<div className="flex flex-col items-start justify-between mt-3">
 			{/* Group Creation */}
-			<></>
+			{/* <UserCriteriaMappingRow  />
+			 */}
+			{initialGroupMappingFromAPI.map((item) => {
+				return (
+					<UserCriteriaMappingRow
+						key={item.criteria.id}
+						criteria={item.criteria}
+						groups={item.groups}
+						initiallyMappedGroups={item.initiallyMappedGroups}
+					/>
+				);
+			})}
 		</div>
 	);
 };
