@@ -53,6 +53,7 @@ const animatedComponents = makeAnimated();
 type IAnimatedMultiProps = {
 	options: IOption[];
 	initialValues: IOption[];
+	setIsCriteriaModified: (isModified: boolean) => void;
 };
 
 // // "use client"
@@ -99,6 +100,7 @@ const SelectedOptionTag = ({ option }: { option: Status }) => {
 export function ComboBoxResponsive({
 	options,
 	initialValues,
+	setIsCriteriaModified,
 }: IAnimatedMultiProps) {
 	// const [open, setOpen] = React.useState(false);
 	const isDesktop = useMediaQuery("(min-width: 200px)");
@@ -132,6 +134,10 @@ export function ComboBoxResponsive({
 		);
 		return modified;
 	}, [allOptionsWithSelectedTag]);
+
+	useEffect(() => {
+		setIsCriteriaModified(isModified);
+	}, [isModified]);
 	// const isCriteriaOptionsModified = useMemo(() => {
 	// 	// return selectedStatus.length > 0;
 	// }, [selectedStatus]);

@@ -345,11 +345,15 @@ const UserCriteriaMappingRow = ({
 	groups,
 	initiallyMappedGroups,
 }: IUserCritiaMappingRow) => {
+	const [isCriteriaOptionsModified, setIsCriteriaOptionsModified] =
+		useState<boolean>(false);
 	return (
-		<div className="grid items-center justify-start w-full grid-cols-5 gap-2 mt-2">
+		<div className="grid items-center justify-start w-full grid-cols-5 gap-2 mt-2 text-xs">
 			<div className="col-span-1 p-2 px-3 rounded">{criteria.title}</div>
-			<div className="flex items-center justify-center w-full col-span-4">
+
+			<div className="flex flex-wrap items-center justify-center w-full col-span-3">
 				<ComboBoxResponsive
+					setIsCriteriaModified={setIsCriteriaOptionsModified}
 					options={groups.map((group) => ({
 						option: group.groupID,
 						label: group.groupName,
@@ -359,6 +363,16 @@ const UserCriteriaMappingRow = ({
 						label: group.groupName,
 					}))}
 				/>
+			</div>
+			<div className="flex items-center justify-start col-span-1 p-2 px-3 rounded">
+				<button
+					disabled={!isCriteriaOptionsModified}
+					className={`flex items-center justify-center px-3 py-2 text-xs text-white ${
+						isCriteriaOptionsModified ? "bg-green-500" : "bg-gray-500"
+					} rounded`}
+				>
+					Save
+				</button>
 			</div>
 		</div>
 	);
