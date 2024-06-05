@@ -21,7 +21,7 @@ import {
 	PopoverTrigger,
 } from "@/components/ui/popover";
 import { init } from "next/dist/compiled/webpack/webpack";
-import { IoCheckbox } from "react-icons/io5";
+import { IoCheckbox, IoClose } from "react-icons/io5";
 import { MdOutlineCheckBoxOutlineBlank } from "react-icons/md";
 // import { colourOptions } from '../data';
 
@@ -87,6 +87,15 @@ const statuses: Status[] = [
 	},
 ];
 
+const SelectedOptionTag = ({ option }: { option: Status }) => {
+	return (
+		<div className="flex items-center justify-around p-1 px-2 mr-3 text-xs bg-blue-200 rounded">
+			{option.label}
+			{/* <IoClose  className="w-4 h-"/> */}
+		</div>
+	);
+};
+
 export function ComboBoxResponsive({
 	options,
 	initialValues,
@@ -103,11 +112,36 @@ export function ComboBoxResponsive({
 	const [selectedStatus, setSelectedStatus] =
 		useState<IOption[]>(initialValues);
 
+	const allOptionsWithSelectedTag = useMemo<IOptionWithSelectedTag[]>(() => {
+		return options.map((option) => {
+			return {
+				...option,
+				selected: selectedStatus
+					.map((item) => item.option)
+					.includes(option.option),
+				initiallySelected: initialValues
+					.map((item) => item.option)
+					.includes(option.option),
+			};
+		});
+	}, [selectedStatus, options, initialValues]);
+
+	const isModified = useMemo(() => {
+		const modified = allOptionsWithSelectedTag.some(
+			(option) => option.selected !== option.initiallySelected
+		);
+		return modified;
+	}, [allOptionsWithSelectedTag]);
+	// const isCriteriaOptionsModified = useMemo(() => {
+	// 	// return selectedStatus.length > 0;
+	// }, [selectedStatus]);
+
 	const handleUpdateSelectedStatus = (status: IOption) => {
-		if (selectedStatus.includes(status)) {
-			setSelectedStatus(
-				selectedStatus.filter((s) => s.option !== status.option)
+		if (selectedStatus.map((item) => item.option).includes(status.option)) {
+			const filteredStatuses = selectedStatus.filter(
+				(s) => s.option !== status.option
 			);
+			setSelectedStatus(filteredStatuses);
 		} else {
 			setSelectedStatus([...selectedStatus, status]);
 		}
@@ -118,24 +152,34 @@ export function ComboBoxResponsive({
 		return (
 			<Popover open={open} onOpenChange={setOpen}>
 				<PopoverTrigger asChild>
-					<Button variant="outline" className="justify-start w-full">
+					<Button
+						variant="outline"
+						className={`flex justify-start items-center w-full ${
+							isModified ? "bg-yellow-100 hover:bg-yellow-100/80" : ""
+						}`}
+					>
 						{selectedStatus.length > 0 ? (
-							<>
-								{selectedStatus.map((item) => (
-									<>{item.label}</>
-								))}
-							</>
+							// <>
+							// 	{selectedStatus.map((item) => (
+							// 		<>{item.label}</>
+							// 	))}
+							// </>
+
+							selectedStatus.map((item) => (
+								<SelectedOptionTag key={item.option} option={item} />
+							))
 						) : (
+							// <SelectedOptionTag option={item}/>
 							<>+ Set Group</>
 						)}
 					</Button>
 				</PopoverTrigger>
 				<PopoverContent className="w-full p-0" align="start">
 					<StatusList
-						options={options}
+						options={allOptionsWithSelectedTag}
 						setOpen={setOpen}
 						setSelectedStatus={handleUpdateSelectedStatus}
-						selectedOptions={initialValues}
+						// selectedOptions={initialValues}
 					/>
 				</PopoverContent>
 			</Popover>
@@ -160,10 +204,10 @@ export function ComboBoxResponsive({
 			<DrawerContent>
 				<div className="mt-4 border-t">
 					<StatusList
-						options={options}
+						options={allOptionsWithSelectedTag}
 						setOpen={setOpen}
 						setSelectedStatus={handleUpdateSelectedStatus}
-						selectedOptions={initialValues}
+						// selectedOptions={initialValues}
 					/>
 				</div>
 			</DrawerContent>
@@ -171,62 +215,46 @@ export function ComboBoxResponsive({
 	);
 }
 
+type IOptionWithSelectedTag = IOption & {
+	selected: boolean;
+	initiallySelected: boolean;
+};
+
 function StatusList({
 	setOpen,
 	setSelectedStatus,
 	options,
-	selectedOptions,
-}: {
+}: // selectedOptions,
+{
 	setOpen: (open: boolean) => void;
 	setSelectedStatus: (status: Status) => void;
-	options: IOption[];
-	selectedOptions: IOption[];
+	options: IOptionWithSelectedTag[];
+	// selectedOptions: IOption[];
 }) {
-	// const handleIsOptionSelected = (option: IOption) => {
-	//     return selectedOptions.map((item) => item.option).includes(option.option);
-	// }
-	// const isOptionSelected = useMemo(() => handleIsOptionSelected(s), [selectedOptions]);
-	// const optionVsSelected = useMemo(, [options, selectedOptions]);
-	const fnnn = () => {
-		return options.map((option) => {
-			return {
-				...option,
-				selected: selectedOptions
-					.map((item) => item.option)
-					.includes(option.option),
-			};
-		});
-	};
-
-	const [optionVsSelected, setOptionVsSelected] = useState(fnnn());
-	useEffect(() => {
-		console.log("selectedOptions", selectedOptions);
-		setOptionVsSelected(fnnn());
-	}, [selectedOptions]);
 	return (
 		<Command>
 			<CommandInput placeholder="Filter Group..." />
 			<CommandList>
 				<CommandEmpty>No results found.</CommandEmpty>
 				<CommandGroup>
-					{optionVsSelected.map((status) => (
+					{options.map((opt) => (
 						<CommandItem
-							key={status.option}
-							value={status.option}
+							key={opt.option}
+							value={opt.option}
 							onSelect={(value) => {
-								setSelectedStatus(status);
-								setOpen(false);
+								setSelectedStatus(opt);
+								// setOpen(false);
 							}}
 							className="space-x-2"
 						>
 							<span>
-								{status.selected ? (
+								{opt.selected ? (
 									<IoCheckbox />
 								) : (
 									<MdOutlineCheckBoxOutlineBlank />
 								)}
 							</span>
-							<span>{status.label}</span>
+							<span>{opt.label}</span>
 						</CommandItem>
 					))}
 				</CommandGroup>
