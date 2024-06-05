@@ -348,7 +348,7 @@ const UserCriteriaMappingRow = ({
 	return (
 		<div className="grid items-center justify-start w-full grid-cols-5 gap-2 mt-2">
 			<div className="col-span-1 p-2 px-3 rounded">{criteria.title}</div>
-			<div className="flex items-center justify-center w-full col-span-4 bg-blue-500">
+			<div className="flex items-center justify-center w-full col-span-4">
 				<ComboBoxResponsive
 					options={groups.map((group) => ({
 						option: group.groupID,
